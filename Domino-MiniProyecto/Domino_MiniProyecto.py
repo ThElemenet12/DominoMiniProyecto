@@ -1,3 +1,7 @@
+
+from random import seed
+from random import randint
+
 class Ficha:
     def __init__(self, numero1, numero2):
         self.numero1 = numero1
@@ -26,6 +30,13 @@ class Jugador:
         self.puntaje = 0
         self._nombre = nombre
 
+    def agregarFicha(self, ficha):
+        self.fichas.append(ficha)
+
+    @property
+    def _fichas(self):
+        return self.fichas
+
     @property
     def nombre(self):
         return self._nombre
@@ -46,6 +57,16 @@ class Juego:
             for j in range(i, 7):
                 nuevaFicha = Ficha(i,j)
                 self.fichas.append(nuevaFicha)
+    def barajarFichas(self):
+        seed(1)
+        i = 0
+
+        while(i < len(self.fichas)):
+            jugadorActual = self.jugadores[randint(0,4)]
+            if(len(jugadorActual._fichas) < 7):
+                jugadorActual.agregarFicha(self.fichas(i))
+                i+= 1
+                
     @property
     def _fichas(self):
         return self.fichas
@@ -61,7 +82,4 @@ class Juego:
 jueguito = Juego()
 jugador1 = Jugador("Pedro")
 
-jueguito.agregarJugadores(jugador1)
 
-for x in jueguito.getJugadores:
-    print(x.nombre)
