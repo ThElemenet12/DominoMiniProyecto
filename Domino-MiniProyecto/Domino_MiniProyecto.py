@@ -2,8 +2,6 @@
 from random import seed
 from random import randint
 
-
-
 class Ficha:
     def __init__(self, numero1, numero2):
         self.numero1 = numero1
@@ -16,18 +14,20 @@ class Ficha:
     @property 
     def dosNumero(self):
         return '{} | {}'.format(self.numero1, self.numero2)
-    
-    
-
 
 class Jugador:
-    def __init__(self, nombre):
+    def __init__(self, nombre, numeroJugador):
+        self.numeroJugador =  numeroJugador
         self.fichas = []
         self.puntaje = 0
         self._nombre = nombre
 
     def agregarFicha(self, ficha):
         self.fichas.append(ficha)
+
+    @property
+    def _numeroJugador(self):
+        return self.numeroJugador
 
     @property
     def _fichas(self):
@@ -78,7 +78,7 @@ class Juego:
     def __init__(self):
         self.fichas = []
         self.jugadores = []
-        self.ganador = ""
+        self.ganador = None
 
     def crearFichas(self):
         for i in range(7):
@@ -116,22 +116,27 @@ class Juego:
     def agregarJugadores(self, jugador):
         self.jugadores.append(jugador)
 
-jueguito = Juego()
-jugador1 = Jugador("Pedro")
-jugador2 = Jugador("Juana")
-jugador3 = Jugador("Marco")
-jugador4 = Jugador("Polo")
+def iniciarJuego(juego):
+    i = 0
+    while(i < 4):
+        print("Digite el nombre del Jugador no. {}: ".format(str(i + 1)))
+        nombrePlayer = input()
+        i+= 1
+        juego.agregarJugadores(Jugador(nombrePlayer, i))
 
-jueguito.agregarJugadores(jugador1)
-jueguito.agregarJugadores(jugador2)
-jueguito.agregarJugadores(jugador3)
-jueguito.agregarJugadores(jugador4)
+def jugando(juego):
+    tablero = Tablero()
+    while(True):
 
-jueguito.crearFichas()
-jueguito.barajarFichas()
 
-jueguito.asignarFichas()
+        break
+        
 
-for x in jueguito.getJugadores:
-    for y in x._fichas:
-        print("{} {}".format(x.nombre, y.dosNumero))
+
+domino = Juego()
+iniciarJuego(juego)
+
+
+  
+
+ 
