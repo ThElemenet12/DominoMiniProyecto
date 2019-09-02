@@ -1,0 +1,23 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.28307.572
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "Domino-MiniProyecto", "Domino-MiniProyecto\Domino-MiniProyecto.pyproj", "{C3DC7F2E-A204-4FE9-B5DC-5CC09C76BDD7}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{C3DC7F2E-A204-4FE9-B5DC-5CC09C76BDD7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C3DC7F2E-A204-4FE9-B5DC-5CC09C76BDD7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {D98AEA0F-93B5-4E3A-88B5-07A26FD98AA5}
+	EndGlobalSection
+EndGlobal
