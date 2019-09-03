@@ -1,4 +1,3 @@
-
 from random import seed
 from random import randint
 
@@ -13,7 +12,13 @@ class Ficha:
         return self.numero1 + self.numero2
     @property 
     def dosNumero(self):
-        return '{} | {}'.format(self.numero1, self.numero2)
+        return '{}/{}'.format(self.numero1, self.numero2)
+    @property
+    def _enTablero(self):
+        return self.enTablero
+    @_enTablero.setter
+    def _enTablero(self, enTablero):
+        self.enTablero = enTablero
 
 class Jugador:
     def __init__(self, nombre, numeroJugador):
@@ -44,28 +49,32 @@ class Tablero:
     def __init__(self):
         self.cabezaA = None
         self.cabezaB = None
-        self.turno = None
 
-    def colocarFicha(self, ficha):
+    def colocarFicha(self, ficha, cabezaA):
+        #Si cabezaA es True, se coloca en la cabezaA 
+        #Si cabezaA es False, se coloca en la cabezaB
+        #Retorna True, si se coloca correctamente
+
         if(cabezaA == None and cabezaB == None):
             cabezaA = ficha.numero1
             cabezaB = ficha.numero2
             return True
         else:
-            if self.cabezaA == ficha.numero1:
-                self.cabezaA = ficha.numero2
-                return True
-            elif self.cabezaA == ficha.numero2:
-                self.cabezaA = ficha.numero1
-                return True
-            elif self.cabezaB == ficha.numero1:
-                self.cabezaB = ficha.numero2
-                return True
-            elif self.cabezaB == ficha.numero2:
-                self.cabezaB = ficha.numero1
-                return True
+            if cabezaA:
+                if self.cabezaA == ficha.numero1:
+                    self.cabezaA = ficha.numero2
+                    return True
+                elif self.cabezaA == ficha.numero2:
+                    self.cabezaA = ficha.numero1
+                    return True
             else:
-                return False
+                if self.cabezaB == ficha.numero1:
+                    self.cabezaB = ficha.numero2
+                    return True
+                elif self.cabezaB == ficha.numero2:
+                    self.cabezaB = ficha.numero1
+                    return True
+        return False
     @property
     def getCabezaA(self):
         return self.cabezaA
@@ -160,8 +169,40 @@ def buscarDobleSeis(juego):
             if y.numero1 == 6 and y.numero2 == 6:
                 return x
 
-def turno():
-    pass
+def turno(tablero, jugador):
+    #Retorna True si el jugador gano
+    #Retorna False si aun no gana 
+
+    print("Turno de: {}".format(jugador.nombre))
+    print("Las dos cabezas son A = {} y B = {}".format(str(tablero.numero1), str(tablero.numero2)))
+    for x in jugador._fichas:
+        print(x.dosNumero,end = ' ')
+
+    fichaElegida = input("Escriba un numero del 1 al {} para elegir una ficha y colocarla en el tablero".format(str(len(jugador._fichas))))
+    if int(fichaElegida) > len(jugador._fichas) or int(fichaElegida) < 1:
+        print("Error! Numero incorrercto")
+    else:
+        if(jugador._fichas[fichaElegida - 1].numero1 is not tablero.cabezaA or jugador._fichas[fichaElegida - 1].numero1 is not tablero.cabezaB):
+            if (jugador._fichas[fichaElegida - 1].numero2 is not tablero.cabezaA or jugador._fichas[fichaElegida - 1].numero2 is not tablero.cabezaB):
+                print("Error! La ficha no encaja en ninguna cabeza")
+        else:
+            cabeza = input("En que cabeza la colocamos? A o B") 
+            cabeza = cabeza == "A"
+            if  not tablero.colocarFicha(jugador._fichas[fichaElegida - 1],cabeza):
+                print("Error, no encaja en esa cabeza")
+            else:
+                jugador._fichas[fichaElegida -1]._enTablero = tablero.colocarFicha(jugador._fichas[fichaElegida - 1],cabeza)
+                print("Ficha colocada correctamente")
+                jugador._fichas.pop(fichaElegida - 1)
+    if(len(jugador._fichas) == 0):
+        return True
+    else:
+        return False
+
+    
+
+        
+
 
 def jugando(juego):
     tablero = Tablero()
@@ -177,6 +218,7 @@ def jugando(juego):
         while(juego._ganador == None):
             if(turno > 3):
                 turno = 0
+            tablero = turno(tablero, orden[turno])
                 
 
             turno += 1
