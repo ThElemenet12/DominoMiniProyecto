@@ -103,7 +103,13 @@ class Juego:
                 else:
                     break
                 
-     
+    @property
+    def _ganador(self):
+        return self.ganador
+    @_ganador.setter
+    def _ganador(self,ganador):
+        self.ganador = ganador
+
     @property
     def _fichas(self):
         return self.fichas
@@ -124,17 +130,68 @@ def iniciarJuego(juego):
         i+= 1
         juego.agregarJugadores(Jugador(nombrePlayer, i))
 
+    juego.asignarFichas
+
+def crearOrden(juego):
+    orden = []
+    index = 0
+    firstPlayer = False
+    while(len(orden) < 4):
+        if(not firstPlayer):
+            if(juego._ganador != None):
+                index = juego._ganador.numeroJugador - 1
+                orden.append(juego.getJugadores[index])
+                firstPlayer = True
+            else:
+                index = buscarDobleSeis(juego).numeroJugador - 1
+                orden.append(juego.getJugadores[index])
+                firstPlayer = True
+        else:
+            if(index > 3):
+                index = 0
+            orden.append(juego.getJugadores[index])
+
+        index += 1
+    return orden
+
+def buscarDobleSeis(juego):
+    for x in juego.getJugadores:
+        for y in x._fichas:
+            if y.numero1 == 6 and y.numero2 == 6:
+                return x
+
+def turno():
+    pass
+
 def jugando(juego):
     tablero = Tablero()
+    orden = []
+    iniciado = False
     while(True):
+        if not iniciado:
+            orden = crearOrden(juego)
+            iniciado = True
+            juego._ganador = None
+
+        turno = 0
+        while(juego._ganador == None):
+            if(turno > 3):
+                turno = 0
+                
+
+            turno += 1
+
+
+           
+
+
 
 
         break
         
 
-
 domino = Juego()
-iniciarJuego(juego)
+iniciarJuego(domino)
 
 
   
