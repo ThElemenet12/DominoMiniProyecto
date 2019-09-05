@@ -1,5 +1,4 @@
-from random import seed
-from random import randint
+import random
 
 class Ficha:
     def __init__(self, numero1, numero2):
@@ -37,6 +36,9 @@ class Jugador:
     @property
     def _fichas(self):
         return self.fichas
+    @_fichas.setter
+    def _fichas(self, fichas):
+        self.fichas = fichas
 
     @property
     def nombre(self):
@@ -94,23 +96,15 @@ class Juego:
             for j in range(i, 7):
                 nuevaFicha = Ficha(i,j)
                 self.fichas.append(nuevaFicha)
-    
-    def barajarFichas(self):
-        seed(1)
+
+    def barajarFichas(juego):
+        random.seed(None)
         i = 0
-        while(i < len(self.fichas)):
-            posicionRandom = randint(0, len(self.fichas) -1 )
-            self.fichas[i],self.fichas[posicionRandom] = self.fichas[posicionRandom], self.fichas[i]
+        while(i < len(juego._fichas)):
+            posicionRandom = random.randint(0, len(juego._fichas) -1 )
+            juego._fichas[i],juego._fichas[posicionRandom] = juego._fichas[posicionRandom], juego._fichas[i]
             i += 1
 
-    def asignarFichas(self):
-        self.barajarFichas()
-        for x in self.jugadores:
-            for y in self.fichas:
-                if(len(x._fichas) < 7):
-                    x.agregarFicha(y)
-                else:
-                    break
                 
     @property
     def _ganador(self):
@@ -122,6 +116,9 @@ class Juego:
     @property
     def _fichas(self):
         return self.fichas
+    @_fichas.setter
+    def _fichas(self,fichas):
+        self.fichas = fichas
     
     @property
     def getJugadores(self):
@@ -131,15 +128,36 @@ class Juego:
     def agregarJugadores(self, jugador):
         self.jugadores.append(jugador)
 
-def iniciarJuego(juego):
+
+def asignarFichas(juego, inicio):
     i = 0
+    mazoDeFichas = []
+    while i < 7:
+        mazoDeFichas.append(juego._fichas[inicio])
+        inicio+=1
+        i += 1
+    return mazoDeFichas
+
+def iniciarJuego(juego):
+    juego.crearFichas()
+    juego.barajarFichas()
+    i = 0
+    inicio = 0
     while(i < 4):
-        print("Digite el nombre del Jugador no. {}: ".format(str(i + 1)))
-        nombrePlayer = input()
+        nombrePlayer = input("Digite el nombre del Jugador no. {}: ".format(str(i + 1)))
         i+= 1
         juego.agregarJugadores(Jugador(nombrePlayer, i))
 
-    juego.asignarFichas
+    for x in juego.getJugadores:
+        x._fichas = asignarFichas(juego,inicio)
+        inicio += 7
+        
+def buscarDobleSeis(juego):
+    for x in juego.getJugadores:
+        for y in x._fichas:
+            if y.numero1 == 6 and y.numero2 == 6:
+                return x
+    return None
 
 def crearOrden(juego):
     orden = []
@@ -163,46 +181,39 @@ def crearOrden(juego):
         index += 1
     return orden
 
-def buscarDobleSeis(juego):
-    for x in juego.getJugadores:
-        for y in x._fichas:
-            if y.numero1 == 6 and y.numero2 == 6:
-                return x
-
 def turno(tablero, jugador):
-    #Retorna True si el jugador gano
-    #Retorna False si aun no gana 
-
+    #Retorna el jugador si el jugador gano
+    #Retorna None si aun no gana 
     print("Turno de: {}".format(jugador.nombre))
-    print("Las dos cabezas son A = {} y B = {}".format(str(tablero.numero1), str(tablero.numero2)))
+    print("\nLas dos cabezas son A = {} y B = {}".format(str(tablero.numero1), str(tablero.numero2)))
     for x in jugador._fichas:
         print(x.dosNumero,end = ' ')
 
-    fichaElegida = input("Escriba un numero del 1 al {} para elegir una ficha y colocarla en el tablero".format(str(len(jugador._fichas))))
-    if int(fichaElegida) > len(jugador._fichas) or int(fichaElegida) < 1:
-        print("Error! Numero incorrercto")
-    else:
-        if(jugador._fichas[fichaElegida - 1].numero1 is not tablero.cabezaA or jugador._fichas[fichaElegida - 1].numero1 is not tablero.cabezaB):
-            if (jugador._fichas[fichaElegida - 1].numero2 is not tablero.cabezaA or jugador._fichas[fichaElegida - 1].numero2 is not tablero.cabezaB):
-                print("Error! La ficha no encaja en ninguna cabeza")
+    while(True):
+        fichaElegida = input("Escriba un numero del 1 al {} para elegir una ficha y colocarla en el tablero".format(str(len(jugador._fichas))))
+        if int(fichaElegida) > len(jugador._fichas) or int(fichaElegida) < 1:
+            print("Error! Numero incorrercto")
+        elif(jugador._fichas[fichaElegida - 1].numero1 is not tablero.cabezaA or jugador._fichas[fichaElegida - 1].numero1 is not tablero.cabezaB):
+             if (jugador._fichas[fichaElegida - 1].numero2 is not tablero.cabezaA or jugador._fichas[fichaElegida - 1].numero2 is not tablero.cabezaB):
+                print("Error! La ficha no encaja en ninguna cabeza") 
         else:
-            cabeza = input("En que cabeza la colocamos? A o B") 
-            cabeza = cabeza == "A"
-            if  not tablero.colocarFicha(jugador._fichas[fichaElegida - 1],cabeza):
-                print("Error, no encaja en esa cabeza")
-            else:
-                jugador._fichas[fichaElegida -1]._enTablero = tablero.colocarFicha(jugador._fichas[fichaElegida - 1],cabeza)
-                print("Ficha colocada correctamente")
-                jugador._fichas.pop(fichaElegida - 1)
-    if(len(jugador._fichas) == 0):
-        return True
-    else:
-        return False
-
+            break
     
+    while(True):
+        cabeza = input("En que cabeza la colocamos? A o B") == "A"
+        if  not tablero.colocarFicha(jugador._fichas[fichaElegida - 1],cabeza):
+            print("Error, no encaja en esa cabeza")
+        else: 
+            break
 
-        
+    jugador._fichas[fichaElegida -1]._enTablero = tablero.colocarFicha(jugador._fichas[fichaElegida - 1],cabeza)
+    print("Ficha colocada correctamente")
+    jugador._fichas.pop(fichaElegida - 1)
 
+    if(len(jugador._fichas) == 0):
+        return jugador
+    else:
+        return None
 
 def jugando(juego):
     tablero = Tablero()
@@ -218,23 +229,19 @@ def jugando(juego):
         while(juego._ganador == None):
             if(turno > 3):
                 turno = 0
-            tablero = turno(tablero, orden[turno])
-                
-
+            juego._ganador = turno(tablero, orden[turno])
             turno += 1
-
-
-           
-
-
-
-
-        break
-        
+        print("ENHORABUENA, EL GANADOR FUE {}".format(juego._ganador.nombre))
 
 domino = Juego()
 iniciarJuego(domino)
-
+for w in domino._fichas:
+    print(w.dosNumero)
+for x in domino.getJugadores:
+    print("\n {} sus fichas son: ".format(x.nombre), end = ' ')
+    for y in x._fichas:
+        print(y.dosNumero, end = ' ')
+#jugando(domino)
 
   
 
