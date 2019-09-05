@@ -57,9 +57,9 @@ class Tablero:
         #Si cabezaA es False, se coloca en la cabezaB
         #Retorna True, si se coloca correctamente
 
-        if(cabezaA == None and cabezaB == None):
-            cabezaA = ficha.numero1
-            cabezaB = ficha.numero2
+        if(self.cabezaA == None and self.cabezaB == None):
+            self.cabezaA = ficha.numero1
+            self.cabezaB = ficha.numero2
             return True
         else:
             if cabezaA:
@@ -184,25 +184,32 @@ def crearOrden(juego):
 def turno(tablero, jugador):
     #Retorna el jugador si el jugador gano
     #Retorna None si aun no gana 
-    print("Turno de: {}".format(jugador.nombre))
-    print("\nLas dos cabezas son A = {} y B = {}".format(str(tablero.numero1), str(tablero.numero2)))
+    print("\n\nTurno de: {}".format(jugador.nombre))
+    print("\nLas dos cabezas son A = {} y B = {}".format(str(tablero.cabezaA), str(tablero.cabezaB)))
     for x in jugador._fichas:
         print(x.dosNumero,end = ' ')
 
     while(True):
-        fichaElegida = input("Escriba un numero del 1 al {} para elegir una ficha y colocarla en el tablero".format(str(len(jugador._fichas))))
+        fichaElegida = input("Escriba un numero del 1 al {} para elegir una ficha y colocarla en el tablero: ".format(str(len(jugador._fichas))))
+        fichaElegida = int(fichaElegida)
+
+        
         if int(fichaElegida) > len(jugador._fichas) or int(fichaElegida) < 1:
             print("Error! Numero incorrercto")
-        elif(jugador._fichas[fichaElegida - 1].numero1 is not tablero.cabezaA or jugador._fichas[fichaElegida - 1].numero1 is not tablero.cabezaB):
-             if (jugador._fichas[fichaElegida - 1].numero2 is not tablero.cabezaA or jugador._fichas[fichaElegida - 1].numero2 is not tablero.cabezaB):
-                print("Error! La ficha no encaja en ninguna cabeza") 
+
+        elif(tablero.cabezaA != None and tablero.cabezaB != None):
+            if(jugador._fichas[fichaElegida - 1].numero1 != tablero.cabezaA or jugador._fichas[fichaElegida - 1].numero1 != tablero.cabezaB):
+                 if (jugador._fichas[fichaElegida - 1].numero2 != tablero.cabezaA or jugador._fichas[fichaElegida - 1].numero2 != tablero.cabezaB):
+                    print("Error! La ficha no encaja en ninguna cabeza") 
+            else:
+                break
         else:
             break
     
     while(True):
-        cabeza = input("En que cabeza la colocamos? A o B") == "A"
+        cabeza = input("\nEn que cabeza la colocamos? A o B" ) == "A"
         if  not tablero.colocarFicha(jugador._fichas[fichaElegida - 1],cabeza):
-            print("Error, no encaja en esa cabeza")
+            print("Error, no encaja en esa cabeza ")
         else: 
             break
 
@@ -225,24 +232,26 @@ def jugando(juego):
             iniciado = True
             juego._ganador = None
 
-        turno = 0
+        turnoJugador = 0
         while(juego._ganador == None):
-            if(turno > 3):
-                turno = 0
-            juego._ganador = turno(tablero, orden[turno])
-            turno += 1
+            if(turno == 3):
+                turnoJugador = 0
+            juego._ganador = turno(tablero, orden[turnoJugador])
+            turnoJugador += 1
         print("ENHORABUENA, EL GANADOR FUE {}".format(juego._ganador.nombre))
 
 domino = Juego()
+tablero = Tablero()
 iniciarJuego(domino)
-for w in domino._fichas:
-    print(w.dosNumero)
-for x in domino.getJugadores:
-    print("\n {} sus fichas son: ".format(x.nombre), end = ' ')
-    for y in x._fichas:
-        print(y.dosNumero, end = ' ')
+jugando(domino)
+#for w in domino._fichas:
+ #   print(w.dosNumero)
+#for x in domino.getJugadores:
+ #   print("\n {} sus fichas son: ".format(x.nombre), end = ' ')
+  #  for y in x._fichas:
+   #     print(y.dosNumero, end = ' ')
 #jugando(domino)
-
-  
+#print("El doble 6 esta en {} ".format(buscarDobleSeis(domino).nombre))
+#print(tablero.colocarFicha(Ficha(6,6),True))
 
  
