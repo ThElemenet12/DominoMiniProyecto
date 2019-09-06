@@ -139,15 +139,16 @@ def asignarFichas(juego, inicio):
         i += 1
     return mazoDeFichas
 
-def iniciarJuego(juego):
+def iniciarJuego(juego, newGame):
     juego.crearFichas()
     juego.barajarFichas()
     i = 0
     inicio = 0
-    while(i < 4):
-        nombrePlayer = input("Digite el nombre del Jugador no. {}: ".format(str(i + 1)))
-        i+= 1
-        juego.agregarJugadores(Jugador(nombrePlayer, i))
+    if newGame:
+        while(i < 4):
+            nombrePlayer = input("Digite el nombre del Jugador no. {}: ".format(str(i + 1)))
+            i+= 1
+            juego.agregarJugadores(Jugador(nombrePlayer, i))
 
     for x in juego.getJugadores:
         x._fichas = asignarFichas(juego,inicio)
@@ -234,31 +235,51 @@ def turno(tablero, jugador):
         return jugador
     else:
         return None
+def calcularTantos(juego):
+    puntaje = 0
+    for x in juego.getJugadores:
+        for y in x._fichas:
+            puntaje += y.valorPuntaje
 
-def jugando(juego):
-    tablero = Tablero()
+    return puntaje
+def jugando(juego, tope):
+    tablero = None
     orden = []
     iniciado = False
     while(True):
         if not iniciado:
             orden = crearOrden(juego)
             iniciado = True
-            juego._ganador = None
+            tablero = Tablero()
 
         turnoJugador = 0
         while(juego._ganador == None):
-            if(turnoJugador == 3):
-                turnoJugador = 0
             juego._ganador = turno(tablero, orden[turnoJugador])
             turnoJugador += 1
-        print("ENHORABUENA, EL GANADOR FUE {}".format(juego._ganador.nombre))
-        break
+            if(turnoJugador == 4):
+                turnoJugador = 0
+        print("ENHORABUENA, EL GANADOR DE ESTA RONDA FUE {}".format(juego._ganador.nombre))
+        
+        for x in juego.getJugadores:
+            if(x.numeroJugador == juego._ganador.numeroJugador):
+                x.puntaje = calcularTantos(juego)
+                juego._ganador.puntaje = x.puntaje
+                break
 
-
+        print("El puntaje final fue de {} tantos! ".format(str(juego._ganador.puntaje)))
+        if(juego._ganador.puntaje >= tope):
+            print("{} HA GANADO EL JUEGO!".format(juego._ganador.nombre))
+            break
+        else:
+            iniciarJuego(juego,False)
+            orden = crearOrden(juego)
+            tablero = Tablero()
+            juego.ganador = None
+            
 domino = Juego()
 tablero = Tablero()
-iniciarJuego(domino)
-jugando(domino)
+iniciarJuego(domino,True)
+jugando(domino,100)
 #for w in domino._fichas:
  #   print(w.dosNumero)
 #for x in domino.getJugadores:
