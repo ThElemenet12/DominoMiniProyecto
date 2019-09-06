@@ -55,6 +55,7 @@ class Tablero:
     def colocarFicha(self, ficha, cabezaA):
         #Si cabezaA es True, se coloca en la cabezaA 
         #Si cabezaA es False, se coloca en la cabezaB
+        #Si cabezaA es None, se coloca en ambas cabezas
         #Retorna True, si se coloca correctamente
 
         if(self.cabezaA == None and self.cabezaB == None):
@@ -184,38 +185,50 @@ def crearOrden(juego):
 def turno(tablero, jugador):
     #Retorna el jugador si el jugador gano
     #Retorna None si aun no gana 
+    pasar = False
     print("\n\nTurno de: {}".format(jugador.nombre))
     print("\nLas dos cabezas son A = {} y B = {}".format(str(tablero.cabezaA), str(tablero.cabezaB)))
     for x in jugador._fichas:
         print(x.dosNumero,end = ' ')
 
     while(True):
-        fichaElegida = input("Escriba un numero del 1 al {} para elegir una ficha y colocarla en el tablero: ".format(str(len(jugador._fichas))))
-        fichaElegida = int(fichaElegida)
-
-        
-        if int(fichaElegida) > len(jugador._fichas) or int(fichaElegida) < 1:
-            print("Error! Numero incorrercto")
-
-        elif(tablero.cabezaA != None and tablero.cabezaB != None):
-            if(jugador._fichas[fichaElegida - 1].numero1 != tablero.cabezaA or jugador._fichas[fichaElegida - 1].numero1 != tablero.cabezaB):
-                 if (jugador._fichas[fichaElegida - 1].numero2 != tablero.cabezaA or jugador._fichas[fichaElegida - 1].numero2 != tablero.cabezaB):
-                    print("Error! La ficha no encaja en ninguna cabeza") 
+        fichaElegida = input("Escriba un numero del 1 al {} para elegir una ficha y colocarla en el tablero... \nO presione \"Q\" para pasar: ".format(str(len(jugador._fichas))))
+        if fichaElegida == "Q" or fichaElegida == "q":
+            print("\nEl jugador {} paso".format(jugador.nombre))
+            pasar = True
+            break
+        else: 
+            fichaElegida = int(fichaElegida)
+            colocado = None
+            if int(fichaElegida) > len(jugador._fichas) or int(fichaElegida) < 1:
+                print("Error! Numero incorrercto")
+            elif(tablero.cabezaA != None and tablero.cabezaB != None):
+                if(jugador._fichas[fichaElegida - 1].numero1 != tablero.cabezaA and jugador._fichas[fichaElegida - 1].numero1 != tablero.cabezaB):
+                     if (jugador._fichas[fichaElegida - 1].numero2 != tablero.cabezaA and jugador._fichas[fichaElegida - 1].numero2 != tablero.cabezaB):
+                        print("Error! La ficha no encaja en ninguna cabeza") 
+                     else:
+                         break
+                else:
+                    break
             else:
                 break
-        else:
-            break
-    
-    while(True):
-        cabeza = input("\nEn que cabeza la colocamos? A o B" ) == "A"
-        if  not tablero.colocarFicha(jugador._fichas[fichaElegida - 1],cabeza):
-            print("Error, no encaja en esa cabeza ")
-        else: 
-            break
+    if(not pasar):
+        while(True):
+            if(tablero.cabezaA != None and tablero.cabezaB != None):
+                respuesta = input("\nEn que cabeza la colocamos? A o B: ").upper()
+                cabeza = True if respuesta == "A" else False
+            else:
+                cabeza = None
 
-    jugador._fichas[fichaElegida -1]._enTablero = tablero.colocarFicha(jugador._fichas[fichaElegida - 1],cabeza)
-    print("Ficha colocada correctamente")
-    jugador._fichas.pop(fichaElegida - 1)
+            colocado =  tablero.colocarFicha(jugador._fichas[fichaElegida - 1],cabeza)
+            if  not colocado:
+                print("Error, no encaja en esa cabeza ")
+            else: 
+                break
+
+        jugador._fichas[fichaElegida -1]._enTablero = True
+        print("Ficha colocada correctamente")
+        jugador._fichas.pop(fichaElegida - 1)
 
     if(len(jugador._fichas) == 0):
         return jugador
@@ -234,11 +247,13 @@ def jugando(juego):
 
         turnoJugador = 0
         while(juego._ganador == None):
-            if(turno == 3):
+            if(turnoJugador == 3):
                 turnoJugador = 0
             juego._ganador = turno(tablero, orden[turnoJugador])
             turnoJugador += 1
         print("ENHORABUENA, EL GANADOR FUE {}".format(juego._ganador.nombre))
+        break
+
 
 domino = Juego()
 tablero = Tablero()
