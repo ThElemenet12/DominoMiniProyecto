@@ -7,6 +7,13 @@ class Ficha:
         self.enTablero = False
 
     @property
+    def _numero1(self):
+        return self.numero1
+    @property 
+    def _numero2(self):
+        return self.numero2
+    
+    @property
     def valorPuntaje(self):
         return self.numero1 + self.numero2
     @property 
@@ -51,6 +58,7 @@ class Tablero:
     def __init__(self):
         self.cabezaA = None
         self.cabezaB = None
+        self.fichasEnTablero = []
 
     def colocarFicha(self, ficha, cabezaA):
         #Si cabezaA es True, se coloca en la cabezaA 
@@ -66,18 +74,27 @@ class Tablero:
             if cabezaA:
                 if self.cabezaA == ficha.numero1:
                     self.cabezaA = ficha.numero2
+                    self.fichasEnTablero.append(ficha)
                     return True
                 elif self.cabezaA == ficha.numero2:
                     self.cabezaA = ficha.numero1
+                    self.fichasEnTablero.append(ficha)
                     return True
+                
             else:
                 if self.cabezaB == ficha.numero1:
                     self.cabezaB = ficha.numero2
+                    self.fichasEnTablero.append(ficha)
                     return True
                 elif self.cabezaB == ficha.numero2:
                     self.cabezaB = ficha.numero1
+                    self.fichasEnTablero.append(ficha)
                     return True
         return False
+    @property
+    def _fichasTablero(self):
+        return self.fichasEnTablero
+
     @property
     def getCabezaA(self):
         return self.cabezaA
@@ -93,6 +110,7 @@ class Juego:
         self.ganador = None
 
     def crearFichas(self):
+        self.fichas = []
         for i in range(7):
             for j in range(i, 7):
                 nuevaFicha = Ficha(i,j)
@@ -129,6 +147,30 @@ class Juego:
     def agregarJugadores(self, jugador):
         self.jugadores.append(jugador)
 
+def verificarTranque(tablero):
+    #retorna falso si el juego no esta trancado
+    #retorna true si el juego esta trancado
+    tranqueEnA = False
+    tranqueEnB = False
+
+    cantidadFichasPorNumero = [0,0,0,0,0,0]
+    for x in tablero._fichasTablero:
+        cantidadFichasPorNumero[x._numero1 - 1] += 1
+        cantidadFichasPorNumero[x._numero2 - 1] += 1
+
+    i = 0
+    while i < 6:
+        if(cantidadFichasPorNumero[i] == 8):
+            if(tablero.cabezaA == (i + 1)):
+                tranqueEnA = True
+            if(tablero.cabezaB == (i + 1)):
+                tranqueEnB = True
+        i+= 1
+
+    if(tranqueEnA and tranqueEnB):
+        return True
+    
+    return False    
 
 def asignarFichas(juego, inicio):
     i = 0
@@ -193,7 +235,7 @@ def turno(tablero, jugador):
         print(x.dosNumero,end = ' ')
 
     while(True):
-        fichaElegida = input("Escriba un numero del 1 al {} para elegir una ficha y colocarla en el tablero... \nO presione \"Q\" para pasar: ".format(str(len(jugador._fichas))))
+        fichaElegida = input("\nEscriba un numero del 1 al {} para elegir una ficha y colocarla en el tablero... \nO presione \"Q\" para pasar: ".format(str(len(jugador._fichas))))
         if fichaElegida == "Q" or fichaElegida == "q":
             print("\nEl jugador {} paso".format(jugador.nombre))
             pasar = True
@@ -239,9 +281,11 @@ def calcularTantos(juego):
     puntaje = 0
     for x in juego.getJugadores:
         for y in x._fichas:
-            puntaje += y.valorPuntaje
+            if(x is not juego._ganador):
+                puntaje += y.valorPuntaje
 
     return puntaje
+
 def jugando(juego, tope):
     tablero = None
     orden = []
@@ -256,8 +300,17 @@ def jugando(juego, tope):
         while(juego._ganador == None):
             juego._ganador = turno(tablero, orden[turnoJugador])
             turnoJugador += 1
-            if(turnoJugador == 4):
+            if(verificarTranque(tablero)):
+                tantosMenor,tantos, jugadorGanador = 168,0, None
+                for x in juego.getJugadores:
+                    for y in x._fichas:
+                        tantos += y.valorPuntaje
+                    if tantos <= tantosMenor:
+                        tantosMenor, tantos, juego._ganador = tantos, 0, x
+            elif(turnoJugador == 4):
                 turnoJugador = 0
+            
+
         print("ENHORABUENA, EL GANADOR DE ESTA RONDA FUE {}".format(juego._ganador.nombre))
         
         for x in juego.getJugadores:
@@ -290,4 +343,3 @@ jugando(domino,100)
 #print("El doble 6 esta en {} ".format(buscarDobleSeis(domino).nombre))
 #print(tablero.colocarFicha(Ficha(6,6),True))
 
- 
