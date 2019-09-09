@@ -1,4 +1,5 @@
 import random
+import time
 
 class Ficha:
     def __init__(self, numero1, numero2):
@@ -27,14 +28,21 @@ class Ficha:
         self.enTablero = enTablero
 
 class Jugador:
-    def __init__(self, nombre, numeroJugador):
+    def __init__(self, nombre, numeroJugador, equipo):
         self.numeroJugador =  numeroJugador
         self.fichas = []
         self.puntaje = 0
         self._nombre = nombre
+        self.equipo = equipo
 
     def agregarFicha(self, ficha):
         self.fichas.append(ficha)
+    @property
+    def _equipo(self):
+        return self.equipo
+    @_equipo.setter
+    def _equipo(self, equipo):
+        self.equipo = equipo
 
     @property
     def _numeroJugador(self):
@@ -181,16 +189,28 @@ def asignarFichas(juego, inicio):
         i += 1
     return mazoDeFichas
 
-def iniciarJuego(juego, newGame):
+def iniciarJuego(juego, newGame, multijugador):
     juego.crearFichas()
     juego.barajarFichas()
     i = 0
     inicio = 0
+    equipo = 1
     if newGame:
         while(i < 4):
-            nombrePlayer = input("Digite el nombre del Jugador no. {}: ".format(str(i + 1)))
-            i+= 1
-            juego.agregarJugadores(Jugador(nombrePlayer, i))
+            if(multijugador):
+                if(i % 2 == 0):
+                    equipo = 1
+                else:
+                    equipo = 2
+                print("\nEquipo {} !!".format(str(equipo)))
+                nombrePlayer = input("Digite el nombre del Jugador no. {}: ".format(str(i + 1)))
+                i+=1
+                juego.agregarJugadores(Jugador(nombrePlayer,i,equipo))
+                
+            else:
+                nombrePlayer = input("Digite el nombre del Jugador no. {}: ".format(str(i + 1)))
+                i+= 1
+                juego.agregarJugadores(Jugador(nombrePlayer, i, None))
 
     for x in juego.getJugadores:
         x._fichas = asignarFichas(juego,inicio)
@@ -229,35 +249,54 @@ def turno(tablero, jugador):
     #Retorna el jugador si el jugador gano
     #Retorna None si aun no gana 
     pasar = False
-    print("\n\nTurno de: {}".format(jugador.nombre))
-    print("\nLas dos cabezas son A = {} y B = {}".format(str(tablero.cabezaA), str(tablero.cabezaB)))
+    if(jugador._equipo != None):
+        print("\n\nTurno de: {} del equipo {}".format(jugador.nombre, jugador._equipo)) 
+    else:
+        print("\n\nTurno de: {}".format(jugador.nombre))
+    print("\nLas dos cabezas son A = {} y B = {}\n".format(str(tablero.cabezaA), str(tablero.cabezaB)))
     for x in jugador._fichas:
         print(x.dosNumero,end = ' ')
+   
+    i = 1
+     
+    while i <= len(jugador._fichas):
+        if i == 1:
+            print("\n {} ".format(str(i)),end = ' ')
+        else:
+            print(" {} ".format(str(i)),end = ' ')
+        i += 1
 
-    while(True):
-        fichaElegida = input("\nEscriba un numero del 1 al {} para elegir una ficha y colocarla en el tablero... \nO presione \"Q\" para pasar: ".format(str(len(jugador._fichas))))
+    correcto = False
+    while(not correcto):
+        fichaElegida = input("\n\nEscriba un numero del 1 al {} para elegir una ficha y colocarla en el tablero... \nO presione \"Q\" para pasar: ".format(str(len(jugador._fichas))))
         if fichaElegida == "Q" or fichaElegida == "q":
             print("\nEl jugador {} paso".format(jugador.nombre))
             pasar = True
-            break
+            correcto = True
+            
         else: 
-            fichaElegida = int(fichaElegida)
-            colocado = None
-            if int(fichaElegida) > len(jugador._fichas) or int(fichaElegida) < 1:
-                print("Error! Numero incorrercto")
-            elif(tablero.cabezaA != None and tablero.cabezaB != None):
-                if(jugador._fichas[fichaElegida - 1].numero1 != tablero.cabezaA and jugador._fichas[fichaElegida - 1].numero1 != tablero.cabezaB):
-                     if (jugador._fichas[fichaElegida - 1].numero2 != tablero.cabezaA and jugador._fichas[fichaElegida - 1].numero2 != tablero.cabezaB):
-                        print("Error! La ficha no encaja en ninguna cabeza") 
-                     else:
-                         break
+            try:
+                fichaElegida = int(fichaElegida)
+                colocado = None
+                
+                if int(fichaElegida) > len(jugador._fichas) or int(fichaElegida) < 1:
+                    print("Error! Numero incorrercto, debe ser entre 1 y {}".format(str(len(jugador._fichas))))
+                elif(tablero.cabezaA != None and tablero.cabezaB != None):
+                    if(jugador._fichas[fichaElegida - 1].numero1 != tablero.cabezaA and jugador._fichas[fichaElegida - 1].numero1 != tablero.cabezaB):
+                         if (jugador._fichas[fichaElegida - 1].numero2 != tablero.cabezaA and jugador._fichas[fichaElegida - 1].numero2 != tablero.cabezaB):
+                            print("Error! La ficha no encaja en ninguna cabeza") 
+                         else:
+                             correcto = True
+                    else:
+                        correcto = True
                 else:
-                    break
-            else:
-                break
+                    correcto = True
+            except ValueError:
+                print("Error, debe ser un numero o la letra Q")
+            
     if(not pasar):
         while(True):
-            if(tablero.cabezaA != None and tablero.cabezaB != None):
+            if(tablero.cabezaA != tablero.cabezaB):
                 respuesta = input("\nEn que cabeza la colocamos? A o B: ").upper()
                 cabeza = True if respuesta == "A" else False
             else:
@@ -285,12 +324,21 @@ def calcularTantos(juego):
                 puntaje += y.valorPuntaje
 
     return puntaje
+def buscarTeam(juego, equipo):
+    listTeam = []
+    for x in juego.getJugadores:
+        if(x._equipo == equipo):
+            listTeam.append(x)
 
-def jugando(juego, tope):
+    return listTeam
+def jugando(juego, tope, multijugador):
     tablero = None
+    ronda = 1
     orden = []
     iniciado = False
     while(True):
+        print("\nRONDA no.{}".format(str(ronda)))
+        time.sleep(3)
         if not iniciado:
             orden = crearOrden(juego)
             iniciado = True
@@ -300,39 +348,89 @@ def jugando(juego, tope):
         while(juego._ganador == None):
             juego._ganador = turno(tablero, orden[turnoJugador])
             turnoJugador += 1
-            if(verificarTranque(tablero)):
+            if(verificarTranque(tablero) and juego._ganador == None):
+                print("\nTRANQUE!!\n")
+                time.sleep(1)
+                print("Buscando ganador, espere...")
+                time.sleep(3)
                 tantosMenor,tantos, jugadorGanador = 168,0, None
                 for x in juego.getJugadores:
                     for y in x._fichas:
                         tantos += y.valorPuntaje
                     if tantos <= tantosMenor:
                         tantosMenor, tantos, juego._ganador = tantos, 0, x
+
             elif(turnoJugador == 4):
                 turnoJugador = 0
             
-
-        print("ENHORABUENA, EL GANADOR DE ESTA RONDA FUE {}".format(juego._ganador.nombre))
         
-        for x in juego.getJugadores:
-            if(x.numeroJugador == juego._ganador.numeroJugador):
-                x.puntaje = calcularTantos(juego)
-                juego._ganador.puntaje = x.puntaje
-                break
-
-        print("El puntaje final fue de {} tantos! ".format(str(juego._ganador.puntaje)))
-        if(juego._ganador.puntaje >= tope):
-            print("{} HA GANADO EL JUEGO!".format(juego._ganador.nombre))
-            break
-        else:
-            iniciarJuego(juego,False)
-            orden = crearOrden(juego)
-            tablero = Tablero()
-            juego.ganador = None
+        if(multijugador):
+            teamGanador = buscarTeam(juego,juego._ganador._equipo)
+            print("ENHORABUENA, LOS GANADORES DE ESTA RONDA FUERON EL EQUIPO {}: {} {}".format(juego._ganador._equipo, teamGanador[0].nombre, teamGanador[1].nombre))
+            time.sleep(2)
+            print("Contando los tantos, espere...")
+            time.sleep(3)
+            for x in juego.getJugadores:
+                if(x.numeroJugador == juego._ganador._equipo):
+                    x.puntaje = calcularTantos(juego)
+                    juego._ganador.puntaje = x.puntaje
+                    break
             
+            print("El puntaje final fue de {} tantos! ".format(str(juego._ganador.puntaje)))
+            time.sleep(1)
+            if(juego._ganador.puntaje >= tope):
+                print("EL EQUIPO {} HA GANADO EL JUEGO!".format(juego._ganador._equipo))
+                break
+            else:
+                iniciarJuego(juego,False, multijugador)
+                orden = crearOrden(juego)
+                tablero = Tablero()
+                juego.ganador = None
+                ronda+= 1
+        else:    
+            print("ENHORABUENA, EL GANADOR DE ESTA RONDA FUE {}".format(juego._ganador.nombre))
+            time.sleep(2)
+            print("Contando los tantos, espere...")
+            time.sleep(3)
+            for x in juego.getJugadores:
+                if(x.numeroJugador == juego._ganador.numeroJugador):
+                    x.puntaje = calcularTantos(juego)
+                    juego._ganador.puntaje = x.puntaje
+                    break
+
+            print("El puntaje final fue de {} tantos! ".format(str(juego._ganador.puntaje)))
+            time.sleep(1)
+            if(juego._ganador.puntaje >= tope):
+                print("{} HA GANADO EL JUEGO!".format(juego._ganador.nombre))
+                break
+            else:
+                iniciarJuego(juego,False, multijugador)
+                orden = crearOrden(juego)
+                tablero = Tablero()
+                juego.ganador = None
+                ronda+= 1
+
+multijugador = False
+correcto = False
+while(not correcto):
+    try:
+        respuestaMenu = int(input("BIENVENIDO A PYTHONMINO!!! \n Como desea Jugar? \n1.Individual\n2.Equipos\nElija:"))
+        if(respuestaMenu != 1 and respuestaMenu != 2):
+            print("Error! Debe ser 1 o 2")
+        else:
+            correcto = True
+    except ValueError:
+        print("Error! Debe ser 1 o 2")
+
+if respuestaMenu == 1:
+    multijugador = False
+else:
+    multijugador = True
+
 domino = Juego()
 tablero = Tablero()
-iniciarJuego(domino,True)
-jugando(domino,100)
+iniciarJuego(domino,True, multijugador)
+jugando(domino,80, multijugador)
 #for w in domino._fichas:
  #   print(w.dosNumero)
 #for x in domino.getJugadores:
