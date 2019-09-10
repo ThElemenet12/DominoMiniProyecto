@@ -73,10 +73,12 @@ class Tablero:
         #Si cabezaA es False, se coloca en la cabezaB
         #Si cabezaA es None, se coloca en ambas cabezas
         #Retorna True, si se coloca correctamente
+    
 
         if(self.cabezaA == None and self.cabezaB == None):
             self.cabezaA = ficha.numero1
             self.cabezaB = ficha.numero2
+            self.fichasEnTablero.append(ficha)
             return True
         else:
             if cabezaA:
@@ -121,7 +123,7 @@ class Juego:
         self.fichas = []
         for i in range(7):
             for j in range(i, 7):
-                nuevaFicha = Ficha(i,j)
+                nuevaFicha = Ficha(j,i)
                 self.fichas.append(nuevaFicha)
 
     def barajarFichas(juego):
@@ -161,17 +163,17 @@ def verificarTranque(tablero):
     tranqueEnA = False
     tranqueEnB = False
 
-    cantidadFichasPorNumero = [0,0,0,0,0,0]
+    cantidadFichasPorNumero = [0,0,0,0,0,0,0]
     for x in tablero._fichasTablero:
-        cantidadFichasPorNumero[x._numero1 - 1] += 1
-        cantidadFichasPorNumero[x._numero2 - 1] += 1
+        cantidadFichasPorNumero[x._numero1] += 1
+        cantidadFichasPorNumero[x._numero2] += 1
 
     i = 0
-    while i < 6:
+    while i < 7:
         if(cantidadFichasPorNumero[i] == 8):
-            if(tablero.cabezaA == (i + 1)):
+            if(tablero.cabezaA == i):
                 tranqueEnA = True
-            if(tablero.cabezaB == (i + 1)):
+            if(tablero.cabezaB == i):
                 tranqueEnB = True
         i+= 1
 
@@ -298,7 +300,13 @@ def turno(tablero, jugador):
         while(True):
             if(tablero.cabezaA != tablero.cabezaB):
                 respuesta = input("\nEn que cabeza la colocamos? A o B: ").upper()
-                cabeza = True if respuesta == "A" else False
+                if respuesta == "A":
+                    cabeza = True
+                elif respuesta == "B":
+                    cabeza = False
+                else:
+                    print("Error! Digite de nuevo")
+                    continue
             else:
                 cabeza = None
 
@@ -372,7 +380,7 @@ def jugando(juego, tope, multijugador):
             time.sleep(3)
             for x in juego.getJugadores:
                 if(x.numeroJugador == juego._ganador._equipo):
-                    x.puntaje = calcularTantos(juego)
+                    x.puntaje += calcularTantos(juego)
                     juego._ganador.puntaje = x.puntaje
                     break
             
@@ -394,7 +402,7 @@ def jugando(juego, tope, multijugador):
             time.sleep(3)
             for x in juego.getJugadores:
                 if(x.numeroJugador == juego._ganador.numeroJugador):
-                    x.puntaje = calcularTantos(juego)
+                    x.puntaje += calcularTantos(juego)
                     juego._ganador.puntaje = x.puntaje
                     break
 
