@@ -374,14 +374,16 @@ def jugando(juego, tope, multijugador):
         
         if(multijugador):
             teamGanador = buscarTeam(juego,juego._ganador._equipo)
-            print("ENHORABUENA, LOS GANADORES DE ESTA RONDA FUERON EL EQUIPO {}: {} {}".format(juego._ganador._equipo, teamGanador[0].nombre, teamGanador[1].nombre))
+            print("ENHORABUENA, LOS GANADORES DE ESTA RONDA FUERON EL EQUIPO {}: {} y {}".format(juego._ganador._equipo, teamGanador[0].nombre, teamGanador[1].nombre))
             time.sleep(2)
             print("Contando los tantos, espere...")
             time.sleep(3)
             for x in juego.getJugadores:
                 if(x.numeroJugador == juego._ganador._equipo):
-                    x.puntaje += calcularTantos(juego)
-                    juego._ganador.puntaje = x.puntaje
+                    calculo = calcularTantos(juego)
+                    print("El puntaje de la ronda fue: {}".format(str(calculo)))
+                    x.puntaje += calculo
+                    
                     break
             
             print("El puntaje final fue de {} tantos! ".format(str(juego._ganador.puntaje)))
