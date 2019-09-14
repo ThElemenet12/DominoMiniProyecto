@@ -217,12 +217,12 @@ class Juego:
                 nuevaFicha = Ficha(j,i)
                 self.fichas.append(nuevaFicha)
 
-    def barajarFichas(juego):
+    def barajarFichas(self):
         random.seed(None)
         i = 0
-        while(i < len(juego._fichas)):
-            posicionRandom = random.randint(0, len(juego._fichas) -1 )
-            juego._fichas[i],juego._fichas[posicionRandom] = juego._fichas[posicionRandom], juego._fichas[i]
+        while(i < len(self.fichas)):
+            posicionRandom = random.randint(0, len(self.fichas) -1 )
+            self.fichas[i],self.fichas[posicionRandom] = self.fichas[posicionRandom], self.fichas[i]
             i += 1
 
     def buscarDobleSeis(self):
@@ -285,7 +285,7 @@ class Juego:
                     i+= 1
                     self.jugadores.append(Jugador(nombrePlayer, i, None))
 
-        for x in self.getJugadores:
+        for x in self.jugadores:
             x._fichas = self.asignarFichas(inicio)
             inicio += 7
     def calcularTantos(self):
@@ -304,106 +304,88 @@ class Juego:
                 listTeam.append(x)
 
         return listTeam
+    def jugando(self, tope, multijugador):
+        tablero = None
+        ronda = 1
+        orden = []
+        iniciado = False
+        while(True):
+            print("\nRONDA no.{}".format(str(ronda)))
+            time.sleep(3)
+            if not iniciado:
+                orden = self.crearOrden()
+                iniciado = True
+                tablero = Tablero()
 
-    @property
-    def _ganador(self):
-        return self.ganador
-    @_ganador.setter
-    def _ganador(self,ganador):
-        self.ganador = ganador
+            turnoJugador = 0
+            while(self.ganador == None):
+                self.ganador = tablero.turno(orden[turnoJugador])
+                turnoJugador += 1
+                if(tablero.verificarTranque() and self.ganador == None):
+                    print("\nTRANQUE!!\n")
+                    time.sleep(1)
+                    print("Buscando ganador, espere...")
+                    time.sleep(3)
+                    tantosMenor,tantos, jugadorGanador = 168,0, None
+                    for x in self.jugadores:
+                        for y in x._fichas:
+                            tantos += y.valorPuntaje
+                        if tantos <= tantosMenor:
+                            tantosMenor, tantos, self.ganador = tantos, 0, x
 
-    @property
-    def _fichas(self):
-        return self.fichas
-    @_fichas.setter
-    def _fichas(self,fichas):
-        self.fichas = fichas
-    
-    @property
-    def getJugadores(self):
-        return self.jugadores
-
-def jugando(juego, tope, multijugador):
-    tablero = None
-    ronda = 1
-    orden = []
-    iniciado = False
-    while(True):
-        print("\nRONDA no.{}".format(str(ronda)))
-        time.sleep(3)
-        if not iniciado:
-            orden = juego.crearOrden()
-            iniciado = True
-            tablero = Tablero()
-
-        turnoJugador = 0
-        while(juego._ganador == None):
-            juego._ganador = tablero.turno(orden[turnoJugador])
-            turnoJugador += 1
-            if(tablero.verificarTranque() and juego._ganador == None):
-                print("\nTRANQUE!!\n")
-                time.sleep(1)
-                print("Buscando ganador, espere...")
-                time.sleep(3)
-                tantosMenor,tantos, jugadorGanador = 168,0, None
-                for x in juego.getJugadores:
-                    for y in x._fichas:
-                        tantos += y.valorPuntaje
-                    if tantos <= tantosMenor:
-                        tantosMenor, tantos, juego._ganador = tantos, 0, x
-
-            elif(turnoJugador == 4):
-                turnoJugador = 0
+                elif(turnoJugador == 4):
+                    turnoJugador = 0
             
         
-        if(multijugador):
-            teamGanador = juego.buscarTeam(juego._ganador._equipo)
-            print("ENHORABUENA, LOS GANADORES DE ESTA RONDA FUERON EL EQUIPO {}: {} y {}".format(juego._ganador._equipo, teamGanador[0].nombre, teamGanador[1].nombre))
-            time.sleep(2)
-            print("Contando los tantos, espere...")
-            time.sleep(3)
-            for x in juego.getJugadores:
-                if(x.numeroJugador == juego._ganador.numeroJugador):
-                    calculo = juego.calcularTantos()
-                    print("El puntaje de la ronda fue: {}".format(str(calculo)))
-                    x.puntaje += calculo
+            if(multijugador):
+                teamGanador = self.buscarTeam(self.ganador._equipo)
+                print("ENHORABUENA, LOS GANADORES DE ESTA RONDA FUERON EL EQUIPO {}: {} y {}".format(self.ganador._equipo, teamGanador[0].nombre, teamGanador[1].nombre))
+                time.sleep(2)
+                print("Contando los tantos, espere...")
+                time.sleep(3)
+                for x in self.jugadores:
+                    if(x.numeroJugador == self.ganador.numeroJugador):
+                        calculo = self.calcularTantos()
+                        print("El puntaje de la ronda fue: {}".format(str(calculo)))
+                        x.puntaje += calculo
                     
                     
-                    break
+                        break
             
-            print("El puntaje final fue de {} tantos! ".format(str(juego._ganador.puntaje)))
-            time.sleep(1)
-            if(juego._ganador.puntaje >= tope):
-                print("EL EQUIPO {} HA GANADO EL JUEGO!".format(juego._ganador._equipo))
-                break
-            else:
-                juego.iniciarJuego(False, multijugador)
-                orden = juego.crearOrden()
-                tablero = Tablero()
-                juego.ganador = None
-                ronda+= 1
-        else:    
-            print("ENHORABUENA, EL GANADOR DE ESTA RONDA FUE {}".format(juego._ganador.nombre))
-            time.sleep(2)
-            print("Contando los tantos, espere...")
-            time.sleep(3)
-            for x in juego.getJugadores:
-                if(x.numeroJugador == juego._ganador.numeroJugador):
-                    x.puntaje += juego.calcularTantos()
-                    juego._ganador.puntaje = x.puntaje
+                print("El puntaje final fue de {} tantos! ".format(str(self.ganador.puntaje)))
+                time.sleep(1)
+                if(self.ganador.puntaje >= tope):
+                    print("EL EQUIPO {} HA GANADO EL JUEGO!".format(self.ganador._equipo))
                     break
+                else:
+                    self.iniciarJuego(False, multijugador)
+                    orden = self.crearOrden()
+                    tablero = Tablero()
+                    self.ganador = None
+                    ronda+= 1
+            else:    
+                print("ENHORABUENA, EL GANADOR DE ESTA RONDA FUE {}".format(self.ganador.nombre))
+                time.sleep(2)
+                print("Contando los tantos, espere...")
+                time.sleep(3)
+                for x in self.jugador:
+                    if(x.numeroJugador == self.ganador.numeroJugador):
+                        x.puntaje += self.calcularTantos()
+                        self.ganador.puntaje = x.puntaje
+                        break
 
-            print("El puntaje final fue de {} tantos! ".format(str(juego._ganador.puntaje)))
-            time.sleep(1)
-            if(juego._ganador.puntaje >= tope):
-                print("{} HA GANADO EL JUEGO!".format(juego._ganador.nombre))
-                break
-            else:
-                juego.iniciarJuego(False, multijugador)
-                orden = juego.crearOrden()
-                tablero = Tablero()
-                juego.ganador = None
-                ronda+= 1
+                print("El puntaje final fue de {} tantos! ".format(str(self.ganador.puntaje)))
+                time.sleep(1)
+                if(self.ganador.puntaje >= tope):
+                    print("{} HA GANADO EL JUEGO!".format(self.ganador.nombre))
+                    break
+                else:
+                    self.iniciarJuego(False, multijugador)
+                    orden = self.crearOrden()
+                    tablero = Tablero()
+                    self.ganador = None
+                    ronda+= 1
+
 
 multijugador = False
 correcto = False
@@ -425,4 +407,4 @@ else:
 domino = Juego()
 tablero = Tablero()
 domino.iniciarJuego(True, multijugador)
-jugando(domino,80, multijugador)
+domino.jugando(80, multijugador)
