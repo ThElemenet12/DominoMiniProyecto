@@ -190,6 +190,7 @@ class Juego:
                         self.ganador.puntaje = x.puntaje
                         break
 
+                
                 print("El puntaje total fue de {} tantos!!! ".format(str(self.ganador.puntaje)))
                 time.sleep(1)
                 if(self.ganador.puntaje >= tope):
