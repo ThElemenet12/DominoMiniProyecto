@@ -115,31 +115,33 @@ class Tablero:
             
         if(not pasar):
             while(True):
-                if(len(jugador._fichas) == 1):
-                    if(jugador._fichas[fichaElegida - 1].numero1 == self.cabezaA or 
-                       jugador._fichas[fichaElegida - 1].numero2 == self.cabezaA):
-                        cabeza = True
-                    elif(jugador._fichas[fichaElegida - 1].numero1 == self.cabezaB or 
-                         jugador._fichas[fichaElegida - 1].numero2 == self.cabezaB):
-                        cabeza = False
+                if(self.cabezaA == self.cabezaB):
+                    cabeza = True
                 elif(self.cabezaA != self.cabezaB):
-                    respuesta = input("\nEn que cabeza la colocamos? A o B: ").upper()
-                    if respuesta == "A":
-                        cabeza = True
-                    elif respuesta == "B":
+                    if(jugador._fichas[fichaElegida - 1].numero1 == self.cabezaA or jugador._fichas[fichaElegida - 1].numero2 == self.cabezaA):
+                        if(jugador._fichas[fichaElegida - 1].numero1 == self.cabezaB or jugador._fichas[fichaElegida - 1].numero2 == self.cabezaB):
+                            respuesta = input("\nEn que cabeza la colocamos? A o B: ").upper()
+                            if respuesta == "A":
+                                cabeza = True
+                            elif respuesta == "B":
+                                cabeza = False
+                            else:
+                                print("Error! Digite de nuevo")
+                                continue
+                        else:
+                            cabeza = True
+                    elif(jugador._fichas[fichaElegida - 1].numero1 == self.cabezaB or 
+                            jugador._fichas[fichaElegida - 1].numero2 == self.cabezaB):
                         cabeza = False
-                    else:
-                        print("Error! Digite de nuevo")
-                        continue
-                else:
+                elif(self.cabezaA == None and self.cabezaB == None):
                     cabeza = None
+                
 
                 colocado =  self.colocarFicha(jugador._fichas[fichaElegida - 1],cabeza)
                 if  not colocado:
                     print("Error, no encaja en esa cabeza ")
                 else: 
                     break
-
             jugador._fichas[fichaElegida -1]._enTablero = True
             print("Ficha colocada correctamente")
             jugador._fichas.pop(fichaElegida - 1)
